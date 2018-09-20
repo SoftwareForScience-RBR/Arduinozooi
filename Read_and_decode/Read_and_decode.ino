@@ -22,7 +22,7 @@ int lastid[14];
 
 struct usertype {
      int serialno[12];
-     char studentno[9];
+     char studentno[10];
 };
 
 struct usertype Users[3];
@@ -68,17 +68,25 @@ void loop()
       for (uint8_t i=0; i<12; i++) {
         id[i]=nano.msg[i+31];
       }
+
+      char sendgood = 'F';
       
       if(memcmp(lastid, id, sizeof(id)) != 0) {
         uint16_t dbsize = sizeof(Users)/sizeof(*Users);
         for(uint16_t i=0; i<dbsize; i++) {
           if(memcmp(id, (Namedb.Users[i].serialno), 12) == 0) {
             Serial.print(Namedb.Users[i].studentno);
-            Serial.print("\r\n");
+            
+            while (Serial.available() == 0);
+            sendgood = Serial.read();
+            
           }
         }
       }
-      memcpy(&lastid, &id, sizeof(id));
+      
+      if (sendgood == 'G') {
+        memcpy(&lastid, &id, sizeof(id));
+      }
     }
   }
 }
